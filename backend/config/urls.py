@@ -12,5 +12,6 @@ schema = strawberry.Schema(query=Query)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
+    path('api/auth/', include('accounts.urls')),
     path('graphql/', GraphQLView.as_view(schema=schema)),
 ]
