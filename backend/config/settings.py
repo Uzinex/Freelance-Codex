@@ -24,9 +24,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'strawberry.django',
     'channels',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -99,3 +101,6 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
