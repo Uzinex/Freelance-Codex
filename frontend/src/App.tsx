@@ -4,6 +4,9 @@ import Login from './pages/Login';
 import ResetPasswordRequest from './pages/ResetPasswordRequest';
 import ResetPasswordConfirm from './pages/ResetPasswordConfirm';
 import Logout from './pages/Logout';
+import ProjectsList from './pages/projects/ProjectsList';
+import ProjectDetail from './pages/projects/ProjectDetail';
+import CreateProject from './pages/projects/CreateProject';
 
 export default function App() {
   return (
@@ -14,6 +17,9 @@ export default function App() {
         <Route path="/reset-password" element={<ResetPasswordRequest />} />
         <Route path="/reset-password/confirm" element={<ResetPasswordConfirm />} />
         <Route path="/logout" element={<Logout />} />
+        <Route path="/projects" element={<ProjectsList />} />
+        <Route path="/projects/new" element={<CreateProject />} />
+        <Route path="/projects/:id" element={<ProjectDetail />} />
       </Routes>
     </BrowserRouter>
   );
