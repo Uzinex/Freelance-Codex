@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'strawberry.django',
     'channels',
     'accounts',
+    'projects',
 ]
 
 MIDDLEWARE = [
