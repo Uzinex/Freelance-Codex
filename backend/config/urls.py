@@ -1,13 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
-import strawberry
 from strawberry.django.views import GraphQLView
-
-@strawberry.type
-class Query:
-    hello: str = "world"
-
-schema = strawberry.Schema(query=Query)
+from schema import schema
 
 urlpatterns = [
     path('admin/', admin.site.urls),
