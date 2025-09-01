@@ -1,3 +1,25 @@
+import { useState } from 'react';
+import { authApi } from '../api/authApi';
+
 export default function ResetPasswordRequest() {
-  return <div>Reset Password Request Page</div>;
+  const [identifier, setIdentifier] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await authApi.requestPasswordReset(identifier);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <input
+        value={identifier}
+        onChange={(e) => setIdentifier(e.target.value)}
+        placeholder="Email or Phone"
+        className="border p-2 w-full"
+      />
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2">
+        Request Reset
+      </button>
+    </form>
+  );
 }
