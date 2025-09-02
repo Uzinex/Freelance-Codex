@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { CREATE_PROJECT } from '../../api/projectsApi';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/authStore';
 
 export default function CreateProject() {
   const [form, setForm] = useState({
@@ -12,12 +11,8 @@ export default function CreateProject() {
     budgetMax: '',
   });
   const navigate = useNavigate();
-  const accessToken = useAuthStore((state) => state.accessToken);
   const [createProject] = useMutation(CREATE_PROJECT);
-
-  if (!accessToken) {
-    return <div>Необходимо войти для создания проекта</div>;
-  }
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -26,15 +21,19 @@ export default function CreateProject() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createProject({
-      variables: {
-        title: form.title,
-        description: form.description,
-        budgetMin: form.budgetMin ? parseFloat(form.budgetMin) : null,
-        budgetMax: form.budgetMax ? parseFloat(form.budgetMax) : null,
-      },
-    });
-    navigate('/projects');
+    try {
+      await createProject({
+        variables: {
+          title: form.title,
+          description: form.description,
+          budgetMin: form.budgetMin ? parseFloat(form.budgetMin) : null,
+          budgetMax: form.budgetMax ? parseFloat(form.budgetMax) : null,
+        },
+      });
+      navigate('/projects');
+    } catch {
+      setError('Failed to create project');
+    }
   };
 
   return (
@@ -67,6 +66,7 @@ export default function CreateProject() {
         placeholder="Budget Max"
         className="border p-2 w-full"
       />
+      {error && <div className="text-red-500">{error}</div>}
       <button type="submit" className="bg-blue-500 text-white px-4 py-2">
         Create
       </button>
