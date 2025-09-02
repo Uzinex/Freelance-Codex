@@ -8,6 +8,9 @@ import ProjectsList from './pages/projects/ProjectsList';
 import ProjectDetail from './pages/projects/ProjectDetail';
 import CreateProject from './pages/projects/CreateProject';
 import PrivateRoute from './components/PrivateRoute';
+import Wallet from './pages/payments/Wallet';
+import Transactions from './pages/payments/Transactions';
+import Transfer from './pages/payments/Transfer';
 
 export default function App() {
   return (
@@ -22,6 +25,30 @@ export default function App() {
           element={
             <PrivateRoute>
               <Logout />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/wallet"
+          element={
+            <PrivateRoute>
+              <Wallet />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/wallet/transactions"
+          element={
+            <PrivateRoute>
+              <Transactions />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/wallet/transfer"
+          element={
+            <PrivateRoute>
+              <Transfer />
             </PrivateRoute>
           }
         />
