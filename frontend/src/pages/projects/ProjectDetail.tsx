@@ -10,6 +10,7 @@ import {
   REJECT_BID,
 } from '../../api/bidsApi';
 import { useAuthStore } from '../../store/authStore';
+import Reviews from '../../components/Reviews';
 
 interface Bid {
   id: number;
@@ -162,6 +163,14 @@ export default function ProjectDetail() {
             Submit Bid
           </button>
         </form>
+      )}
+
+      {project.status === 'completed' && (
+        <Reviews
+          userId={project.owner.id}
+          projectId={projectId}
+          canReview={true}
+        />
       )}
     </div>
   );
