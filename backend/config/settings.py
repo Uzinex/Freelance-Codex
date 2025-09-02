@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'channels',
     'accounts',
     'projects',
+    'bids',
 ]
 
 MIDDLEWARE = [
