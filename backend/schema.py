@@ -1,15 +1,16 @@
 import strawberry
 import projects.schema
 import bids.schema
+import reviews.schema
 
 
 @strawberry.type
-class Query(projects.schema.Query, bids.schema.Query):
+class Query(projects.schema.Query, bids.schema.Query, reviews.schema.Query):
     hello: str = "world"
 
 
 @strawberry.type
-class Mutation(projects.schema.Mutation, bids.schema.Mutation):
+class Mutation(projects.schema.Mutation, bids.schema.Mutation, reviews.schema.Mutation):
     pass
 
 
