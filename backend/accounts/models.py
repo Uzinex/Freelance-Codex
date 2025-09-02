@@ -12,6 +12,12 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username or self.email or self.phone or ''
 
+    def average_rating(self):
+        reviews = self.reviews_received.all()
+        if not reviews:
+            return None
+        return sum(r.rating for r in reviews) / len(reviews)
+
 
 class PasswordResetCode(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='reset_codes')
