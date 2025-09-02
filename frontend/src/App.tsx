@@ -7,6 +7,7 @@ import Logout from './pages/Logout';
 import ProjectsList from './pages/projects/ProjectsList';
 import ProjectDetail from './pages/projects/ProjectDetail';
 import CreateProject from './pages/projects/CreateProject';
+import PrivateRoute from './components/PrivateRoute';
 
 export default function App() {
   return (
@@ -16,9 +17,23 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/reset-password" element={<ResetPasswordRequest />} />
         <Route path="/reset-password/confirm" element={<ResetPasswordConfirm />} />
-        <Route path="/logout" element={<Logout />} />
+        <Route
+          path="/logout"
+          element={
+            <PrivateRoute>
+              <Logout />
+            </PrivateRoute>
+          }
+        />
         <Route path="/projects" element={<ProjectsList />} />
-        <Route path="/projects/new" element={<CreateProject />} />
+        <Route
+          path="/projects/new"
+          element={
+            <PrivateRoute>
+              <CreateProject />
+            </PrivateRoute>
+          }
+        />
         <Route path="/projects/:id" element={<ProjectDetail />} />
       </Routes>
     </BrowserRouter>

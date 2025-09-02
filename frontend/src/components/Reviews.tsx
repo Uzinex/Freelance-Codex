@@ -14,6 +14,7 @@ export default function Reviews({ userId, projectId, canReview }: ReviewsProps) 
   const [createReview] = useMutation(CREATE_REVIEW);
 
   const [form, setForm] = useState({ rating: 5, comment: '' });
+  const [error, setError] = useState('');
 
   const handleChange = (
     e: ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>,
@@ -25,15 +26,20 @@ export default function Reviews({ userId, projectId, canReview }: ReviewsProps) 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!projectId) return;
-    await createReview({
-      variables: {
-        projectId,
-        rating: Number(form.rating),
-        comment: form.comment,
-      },
-    });
-    setForm({ rating: 5, comment: '' });
-    refetch();
+    try {
+      await createReview({
+        variables: {
+          projectId,
+          rating: Number(form.rating),
+          comment: form.comment,
+        },
+      });
+      setForm({ rating: 5, comment: '' });
+      setError('');
+      refetch();
+    } catch {
+      setError('Failed to submit review');
+    }
   };
 
   return (
@@ -59,6 +65,7 @@ export default function Reviews({ userId, projectId, canReview }: ReviewsProps) 
             placeholder="Comment"
             className="border p-2 w-full"
           />
+          {error && <div className="text-red-500">{error}</div>}
           <button type="submit" className="bg-blue-500 text-white px-4 py-2">
             Submit Review
           </button>

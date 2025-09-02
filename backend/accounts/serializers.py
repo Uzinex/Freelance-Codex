@@ -1,7 +1,7 @@
 import random
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-from django.conf import settings
 from django.db.models import Q
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -46,60 +46,57 @@ class LoginSerializer(serializers.Serializer):
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=False)
-    phone = serializers.CharField(required=False)
+    identifier = serializers.CharField()
 
     def validate(self, attrs):
-        email = attrs.get('email')
-        phone = attrs.get('phone')
-        if bool(email) == bool(phone):
-            raise serializers.ValidationError('Provide either email or phone')
-        user = User.objects.filter(email=email).first() if email else User.objects.filter(phone=phone).first()
+        identifier = attrs.get('identifier')
+        user = User.objects.filter(Q(email=identifier) | Q(phone=identifier)).first()
         if user is None:
             raise serializers.ValidationError('User not found')
         attrs['user'] = user
+        attrs['identifier'] = identifier
         return attrs
 
     def create(self, validated_data):
         user = validated_data['user']
+        identifier = validated_data['identifier']
         code = str(random.randint(100000, 999999))
         PasswordResetCode.objects.create(user=user, code=code)
-        if validated_data.get('email'):
+        if '@' in identifier:
             send_mail(
                 'Password Reset Code',
                 f'Your password reset code is {code}',
                 getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@example.com'),
-                [validated_data['email']],
+                [identifier],
                 fail_silently=True,
             )
         else:
             account_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', None)
             auth_token = getattr(settings, 'TWILIO_AUTH_TOKEN', None)
             from_number = getattr(settings, 'TWILIO_FROM_NUMBER', None)
-            to_number = validated_data['phone']
             if account_sid and auth_token and from_number:
                 client = Client(account_sid, auth_token)
-                client.messages.create(body=f'Your password reset code is {code}', from_=from_number, to=to_number)
+                client.messages.create(body=f'Your password reset code is {code}', from_=from_number, to=identifier)
             else:
-                print(f'SMS to {to_number}: {code}')
+                print(f'SMS to {identifier}: {code}')
         return validated_data
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=False)
-    phone = serializers.CharField(required=False)
+    identifier = serializers.CharField()
     code = serializers.CharField()
     new_password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        email = attrs.get('email')
-        phone = attrs.get('phone')
-        if bool(email) == bool(phone):
-            raise serializers.ValidationError('Provide either email or phone')
-        user = User.objects.filter(email=email).first() if email else User.objects.filter(phone=phone).first()
+        identifier = attrs.get('identifier')
+        user = User.objects.filter(Q(email=identifier) | Q(phone=identifier)).first()
         if user is None:
             raise serializers.ValidationError('User not found')
-        reset_code = PasswordResetCode.objects.filter(user=user, code=attrs.get('code'), is_used=False).order_by('-created_at').first()
+        reset_code = (
+            PasswordResetCode.objects.filter(user=user, code=attrs.get('code'), is_used=False)
+            .order_by('-created_at')
+            .first()
+        )
         if reset_code is None or not reset_code.is_valid():
             raise serializers.ValidationError('Invalid or expired code')
         attrs['user'] = user

@@ -10,15 +10,26 @@ interface AuthState {
   refreshToken: string | null;
   login: (tokens: Tokens) => void;
   logout: () => void;
-  setTokens: (tokens: Tokens) => void;
-  clearTokens: () => void;
 }
 
+const storedAccess = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+const storedRefresh = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: null,
-  refreshToken: null,
-  login: (tokens) => set({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken }),
-  logout: () => set({ accessToken: null, refreshToken: null }),
-  setTokens: (tokens) => set({ accessToken: tokens.accessToken, refreshToken: tokens.refreshToken }),
-  clearTokens: () => set({ accessToken: null, refreshToken: null }),
+  accessToken: storedAccess,
+  refreshToken: storedRefresh,
+  login: ({ accessToken, refreshToken }) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+    }
+    set({ accessToken, refreshToken });
+  },
+  logout: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+    set({ accessToken: null, refreshToken: null });
+  },
 }));

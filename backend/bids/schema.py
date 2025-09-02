@@ -23,7 +23,13 @@ class BidType:
 class Query:
     @strawberry.field
     def bids(self, info, project_id: int) -> List[BidType]:
-        return Bid.objects.filter(project_id=project_id)
+        user = info.context.request.user
+        if not user.is_authenticated:
+            raise Exception("Authentication required")
+        project = Project.objects.get(pk=project_id)
+        if project.owner == user:
+            return list(project.bids.all())
+        return list(Bid.objects.filter(project=project, freelancer=user))
 
 
 @strawberry.type
@@ -34,6 +40,8 @@ class Mutation:
         if not user.is_authenticated:
             raise Exception("Authentication required")
         project = Project.objects.get(pk=project_id)
+        if project.owner == user:
+            raise Exception("Project owners cannot bid on their own projects")
         bid = Bid.objects.create(
             project=project, freelancer=user, amount=amount, message=message
         )

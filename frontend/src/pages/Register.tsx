@@ -3,6 +3,8 @@ import { authApi } from '../api/authApi';
 
 export default function Register() {
   const [form, setForm] = useState({ username: '', email: '', phone: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -10,7 +12,15 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await authApi.register(form);
+    try {
+      setLoading(true);
+      await authApi.register(form);
+      alert('Registration successful');
+    } catch {
+      setError('Registration failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,8 +54,9 @@ export default function Register() {
         placeholder="Password"
         className="border p-2 w-full"
       />
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2">
-        Register
+      {error && <div className="text-red-500">{error}</div>}
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2" disabled={loading}>
+        {loading ? 'Loading...' : 'Register'}
       </button>
     </form>
   );
