@@ -7,6 +7,7 @@ class Bid(models.Model):
         ("pending", "Pending"),
         ("accepted", "Accepted"),
         ("rejected", "Rejected"),
+        ("resolved", "Resolved"),
     ]
 
     project = models.ForeignKey(

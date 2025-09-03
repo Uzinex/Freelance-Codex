@@ -7,6 +7,15 @@ from datetime import timedelta
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True, null=True, blank=True)
     phone = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    role = models.CharField(
+        choices=[
+            ("admin", "Admin"),
+            ("customer", "Customer"),
+            ("freelancer", "Freelancer"),
+        ],
+        default="freelancer",
+        max_length=20,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
