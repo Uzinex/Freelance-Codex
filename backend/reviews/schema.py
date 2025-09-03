@@ -6,6 +6,7 @@ from projects.models import Project
 from projects.schema import ProjectType, UserType
 
 from .models import Review
+from notifications.tasks import send_system_notification, dispatch_notification
 
 
 @strawberry_django.type(Review)
@@ -47,4 +48,5 @@ class Mutation:
             rating=rating,
             comment=comment,
         )
+        dispatch_notification(send_system_notification, review.target.id, 'New Review', f'{user.username} left you a review on {project.title}')
         return review

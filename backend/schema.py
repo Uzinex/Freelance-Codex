@@ -4,7 +4,7 @@ import bids.schema
 import reviews.schema
 import payments.schema
 import chat.schema
-
+import notifications.schema
 
 @strawberry.type
 class Query(
@@ -13,9 +13,9 @@ class Query(
     reviews.schema.Query,
     payments.schema.Query,
     chat.schema.Query,
+    notifications.schema.Query,
 ):
     hello: str = "world"
-
 
 @strawberry.type
 class Mutation(
@@ -24,8 +24,8 @@ class Mutation(
     reviews.schema.Mutation,
     payments.schema.Mutation,
     chat.schema.Mutation,
+    notifications.schema.Mutation,
 ):
     pass
-
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)

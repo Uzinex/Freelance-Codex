@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 
 from projects.schema import UserType
 from .models import Wallet, Transaction
+from notifications.tasks import send_system_notification, dispatch_notification
 
 
 @strawberry_django.type(Wallet)
@@ -87,4 +88,5 @@ class Mutation:
         to_wallet.save()
         Transaction.objects.create(wallet=wallet, amount=amount, type="transfer")
         Transaction.objects.create(wallet=to_wallet, amount=amount, type="transfer")
+        dispatch_notification(send_system_notification, to_user.id, 'Payment Received', f'You received {amount} from {user.username}')
         return wallet
