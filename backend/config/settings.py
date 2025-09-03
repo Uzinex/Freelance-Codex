@@ -110,3 +110,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+CLICK_SECRET_KEY = env('CLICK_SECRET_KEY', default='')
+PAYME_SECRET_KEY = env('PAYME_SECRET_KEY', default='')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default='')
