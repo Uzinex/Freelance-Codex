@@ -1,64 +1,33 @@
-name: Deploy
-
+name: Deploy to Railway
 on:
   push:
-    branches: [ main ]
-
+    branches: [ "main" ]
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-
+          python-version: "3.12"
+      - name: Install backend dependencies and run tests
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          python manage.py test
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-
-      - name: Install backend dependencies
-        run: pip install -r requirements.txt
-        working-directory: backend
-
-      - name: Run backend tests
-        run: python manage.py test
-        working-directory: backend
-
-      - name: Install frontend dependencies
-        run: npm ci
+          node-version: "22"
+      - name: Install frontend dependencies and lint
         working-directory: frontend
-
-      - name: Run frontend lint
-        run: npm run lint
-        working-directory: frontend
-
-      - name: Login to DockerHub
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-        run: echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-
-      - name: Build backend image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/freelance-codex-backend:latest backend
-
-      - name: Build frontend image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/freelance-codex-frontend:latest frontend
-
-      - name: Push images
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/freelance-codex-backend:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/freelance-codex-frontend:latest
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
-
-      - name: Deploy to Kubernetes
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-        run: |
-          echo "$KUBE_CONFIG_DATA" | base64 -d > $HOME/.kube/config
-          kubectl apply -f k8s/
+          npm ci
+          npm run lint
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+      - name: Deploy backend service
+        run: railway up --service backend
+      - name: Deploy frontend service
+        run: railway up --service frontend
