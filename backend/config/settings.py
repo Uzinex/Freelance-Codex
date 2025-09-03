@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'bids',
     'reviews',
     'payments',
+    'chat',
 ]
 
 MIDDLEWARE = [

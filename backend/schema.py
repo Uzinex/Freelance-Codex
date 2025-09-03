@@ -3,6 +3,7 @@ import projects.schema
 import bids.schema
 import reviews.schema
 import payments.schema
+import chat.schema
 
 
 @strawberry.type
@@ -11,6 +12,7 @@ class Query(
     bids.schema.Query,
     reviews.schema.Query,
     payments.schema.Query,
+    chat.schema.Query,
 ):
     hello: str = "world"
 
@@ -21,6 +23,7 @@ class Mutation(
     bids.schema.Mutation,
     reviews.schema.Mutation,
     payments.schema.Mutation,
+    chat.schema.Mutation,
 ):
     pass
 
