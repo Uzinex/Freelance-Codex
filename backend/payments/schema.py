@@ -5,7 +5,8 @@ from typing import List
 from django.contrib.auth import get_user_model
 
 from projects.schema import UserType
-from .models import Wallet, Transaction
+from .models import Wallet, Transaction, PaymentGatewayTransaction
+from .tasks import check_payment_status
 from notifications.tasks import send_system_notification, dispatch_notification
 
 
@@ -26,6 +27,17 @@ class TransactionType:
     created_at: strawberry.auto
 
 
+@strawberry_django.type(PaymentGatewayTransaction)
+class PaymentGatewayTransactionType:
+    id: strawberry.auto
+    wallet: WalletType
+    provider: strawberry.auto
+    amount: strawberry.auto
+    status: strawberry.auto
+    provider_txn_id: strawberry.auto
+    created_at: strawberry.auto
+
+
 @strawberry.type
 class Query:
     @strawberry.field
@@ -41,6 +53,13 @@ class Query:
         if not user.is_authenticated:
             raise Exception("Authentication required")
         return list(user.wallet.transactions.order_by("-created_at"))
+
+    @strawberry.field
+    def payment_transactions(self, info) -> List[PaymentGatewayTransactionType]:
+        user = info.context.request.user
+        if not user.is_authenticated:
+            raise Exception("Authentication required")
+        return list(user.wallet.gateway_transactions.order_by("-created_at"))
 
 
 @strawberry.type
@@ -68,6 +87,26 @@ class Mutation:
         wallet.save()
         Transaction.objects.create(wallet=wallet, amount=amount, type="withdraw")
         return wallet
+
+    @strawberry.mutation
+    def initiate_payment(self, info, provider: str, amount: Decimal) -> str:
+        user = info.context.request.user
+        if not user.is_authenticated:
+            raise Exception("Authentication required")
+        wallet = user.wallet
+        valid_providers = dict(PaymentGatewayTransaction._meta.get_field("provider").choices)
+        if provider not in valid_providers:
+            raise Exception("Unsupported provider")
+        txn = PaymentGatewayTransaction.objects.create(
+            wallet=wallet, provider=provider, amount=amount
+        )
+        # In real life, call provider API to get payment URL or form.
+        payment_url = f"https://{provider}.example.com/pay/{txn.id}"
+        try:
+            check_payment_status.delay(txn.id)
+        except Exception:
+            check_payment_status.apply(args=[txn.id])
+        return payment_url
 
     @strawberry.mutation
     def transfer(self, info, to_user_id: int, amount: Decimal) -> WalletType:
