@@ -15,6 +15,11 @@ import Transfer from './pages/payments/Transfer';
 import ChatList from './pages/chat/ChatList';
 import ChatRoom from './pages/chat/ChatRoom';
 import NotificationsList from './components/NotificationsList';
+import UsersAdmin from './pages/admin/UsersAdmin';
+import ProjectsAdmin from './pages/admin/ProjectsAdmin';
+import BidsAdmin from './pages/admin/BidsAdmin';
+import ReviewsAdmin from './pages/admin/ReviewsAdmin';
+import TransactionsAdmin from './pages/admin/TransactionsAdmin';
 import { useNotificationsStore } from './store/notificationsStore';
 import { useAuthStore } from './store/authStore';
 
@@ -133,6 +138,46 @@ export default function App() {
           element={
             <PrivateRoute>
               <NotificationsList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <PrivateRoute>
+              <UsersAdmin />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/projects"
+          element={
+            <PrivateRoute>
+              <ProjectsAdmin />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/bids"
+          element={
+            <PrivateRoute>
+              <BidsAdmin />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/reviews"
+          element={
+            <PrivateRoute>
+              <ReviewsAdmin />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/transactions"
+          element={
+            <PrivateRoute>
+              <TransactionsAdmin />
             </PrivateRoute>
           }
         />

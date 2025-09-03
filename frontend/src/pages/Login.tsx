@@ -18,7 +18,7 @@ export default function Login() {
     try {
       setLoading(true);
       const data = await authApi.login({ identifier: form.identifier, password: form.password });
-      login({ accessToken: data.access, refreshToken: data.refresh });
+      login({ accessToken: data.access, refreshToken: data.refresh, role: data.role });
     } catch (err: unknown) {
       const resp = err as { response?: { data?: { detail?: string } } };
       const message = resp.response?.data?.detail ?? 'Login failed';
