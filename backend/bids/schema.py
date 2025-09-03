@@ -6,6 +6,7 @@ from typing import List
 from projects.models import Project
 from projects.schema import ProjectType, UserType
 from .models import Bid
+from notifications.tasks import send_system_notification, dispatch_notification
 
 
 @strawberry_django.type(Bid)
@@ -45,6 +46,7 @@ class Mutation:
         bid = Bid.objects.create(
             project=project, freelancer=user, amount=amount, message=message
         )
+        dispatch_notification(send_system_notification, project.owner.id, 'New Bid', f'You have a new bid on {project.title}')
         return bid
 
     @strawberry.mutation
@@ -55,6 +57,7 @@ class Mutation:
             raise Exception("Not permitted")
         bid.status = "accepted"
         bid.save()
+        dispatch_notification(send_system_notification, bid.freelancer.id, 'Bid Accepted', f'Your bid on {bid.project.title} was accepted')
         return bid
 
     @strawberry.mutation
@@ -65,4 +68,5 @@ class Mutation:
             raise Exception("Not permitted")
         bid.status = "rejected"
         bid.save()
+        dispatch_notification(send_system_notification, bid.freelancer.id, 'Bid Rejected', f'Your bid on {bid.project.title} was rejected')
         return bid

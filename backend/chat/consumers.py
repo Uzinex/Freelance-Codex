@@ -1,5 +1,6 @@
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from notifications.tasks import send_system_notification, dispatch_notification
 
 from .models import Message, Room
 
@@ -36,6 +37,9 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         message = await sync_to_async(Message.objects.create)(
             room=self.room, author=user, content=message_text
         )
+        participants = await sync_to_async(list)(self.room.participants.exclude(pk=user.pk))
+        for participant in participants:
+            dispatch_notification(send_system_notification, participant.id, 'New Message', message_text)
         data = {
             "id": message.id,
             "author": user.id,
