@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import ResetPasswordRequest from './pages/ResetPasswordRequest';
@@ -13,10 +14,57 @@ import Transactions from './pages/payments/Transactions';
 import Transfer from './pages/payments/Transfer';
 import ChatList from './pages/chat/ChatList';
 import ChatRoom from './pages/chat/ChatRoom';
+import NotificationsList from './components/NotificationsList';
+import { useNotificationsStore } from './store/notificationsStore';
+import { useAuthStore } from './store/authStore';
 
 export default function App() {
+  const notifications = useNotificationsStore((state) => state.notifications);
+  const addNotification = useNotificationsStore((state) => state.addNotification);
+  const token = useAuthStore((state) => state.accessToken);
+
+  useEffect(() => {
+    if (!token) return;
+    const socket = new WebSocket('ws://localhost:8000/ws/notifications/');
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        addNotification({
+          id: data.id,
+          type: data.type,
+          title: data.title,
+          message: data.message,
+          isRead: data.is_read,
+          createdAt: data.created_at,
+        });
+      } catch {
+        // ignore parse errors
+      }
+    };
+    return () => {
+      socket.close();
+    };
+  }, [token, addNotification]);
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
   return (
     <BrowserRouter>
+      <nav className="p-4 flex justify-between bg-gray-100">
+        <Link to="/projects" className="font-bold">
+          Freelance Codex
+        </Link>
+        <Link to="/notifications" className="relative">
+          <span role="img" aria-label="notifications">
+            🔔
+          </span>
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full text-xs px-1">
+              {unreadCount}
+            </span>
+          )}
+        </Link>
+      </nav>
       <Routes>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
@@ -80,6 +128,14 @@ export default function App() {
           }
         />
         <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route
+          path="/notifications"
+          element={
+            <PrivateRoute>
+              <NotificationsList />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
