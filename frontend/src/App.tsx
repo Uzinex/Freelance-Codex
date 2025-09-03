@@ -11,6 +11,8 @@ import PrivateRoute from './components/PrivateRoute';
 import Wallet from './pages/payments/Wallet';
 import Transactions from './pages/payments/Transactions';
 import Transfer from './pages/payments/Transfer';
+import ChatList from './pages/chat/ChatList';
+import ChatRoom from './pages/chat/ChatRoom';
 
 export default function App() {
   return (
@@ -49,6 +51,22 @@ export default function App() {
           element={
             <PrivateRoute>
               <Transfer />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <PrivateRoute>
+              <ChatList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/chat/:roomId"
+          element={
+            <PrivateRoute>
+              <ChatRoom />
             </PrivateRoute>
           }
         />
